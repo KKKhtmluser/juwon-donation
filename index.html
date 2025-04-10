@@ -1,9 +1,183 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>주원 기부</title>
-</head>
-<body>
-  <h1>안녕하세요! 주원 기부 페이지입니다.</h1>
-</body>
+<html lang="ko">
+  <head>
+    <meta charset="euc-kr" />
+    <title>나주원 기부사이트 알파</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        background-color: #1e1e1e;
+        font-family: 'Segoe UI', sans-serif;
+        color: white;
+        text-align: center;
+        overflow: hidden;
+      }
+
+      .logo {
+        margin-bottom: 20px;
+      }
+
+      .logo img {
+        width: 150px;
+      }
+
+      .description {
+        font-size: 20px;
+        margin-bottom: 20px;
+        line-height: 1.6;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .donate-input {
+        margin-bottom: 15px;
+      }
+
+      input[type="number"] {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 6px;
+        border: none;
+        outline: none;
+        width: 200px;
+        text-align: center;
+      }
+
+      .donate-button {
+        display: inline-block;
+        padding: 15px 30px;
+        font-size: 18px;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        border: none;
+        position: relative;
+        overflow: visible;
+      }
+
+      .donate-button:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+        transform: scale(1.05);
+      }
+
+      .thank-you {
+        margin-top: 30px;
+        font-size: 22px;
+        color: #00ffae;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+      }
+
+      .thank-you.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* 파티클 애니메이션 */
+      .particle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background-color: #ffcc00;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: pop 0.6s ease-out forwards;
+      }
+
+      @keyframes pop {
+        0% {
+          opacity: 1;
+          transform: translate(0, 0) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(var(--x), var(--y)) scale(0.5);
+        }
+      }
+
+      /* 버튼 흔들기 */
+      @keyframes shake {
+        0% { transform: translateX(0); }
+        20% { transform: translateX(-5px); }
+        40% { transform: translateX(5px); }
+        60% { transform: translateX(-5px); }
+        80% { transform: translateX(5px); }
+        100% { transform: translateX(0); }
+      }
+
+      .shake {
+        animation: shake 0.5s;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="logo">
+      <img src="https://i.postimg.cc/Xn17n5nZ/Chat-GPT-Image-2025-4-10-10-30-46.png" alt="주원의 마음 로고">
+    </div>
+
+    <div class="description">
+      안녕하세요!<br>
+      이 사이트는 <strong>나주원</strong>의 기부 프로젝트를 소개하고,  
+      더 나은 세상을 만들기 위한 따뜻한 마음을 나누는 공간입니다.<br>
+      기부할 금액을 입력하고 아래 버튼을 눌러주세요!
+    </div>
+
+    <div class="donate-input">
+      <input type="number" id="amountInput" placeholder="기부 금액 (?)" min="1" />
+    </div>
+
+    <button class="donate-button" id="donateBtn" onclick="completeDonation(event)">기부하기</button>
+
+    <div class="thank-you" id="thankYouMessage"></div>
+
+    <script>
+      function completeDonation(event) {
+        const amount = document.getElementById("amountInput").value;
+        const message = document.getElementById("thankYouMessage");
+        const button = document.getElementById("donateBtn");
+
+        // 흔들기 효과
+        button.classList.add("shake");
+        setTimeout(() => button.classList.remove("shake"), 500);
+
+        // 금액 확인
+        if (!amount || amount <= 0) {
+          alert("기부 금액을 입력해주세요!");
+          return;
+        }
+
+        // 메시지 표시
+        message.textContent = `? ?${Number(amount).toLocaleString()} 기부가 완료되었습니다! 감사합니다 ?`;
+        message.classList.add("show");
+
+        // 5초 뒤 메시지 사라짐
+        setTimeout(() => message.classList.remove("show"), 5000);
+
+        // 파티클 생성
+        const rect = button.getBoundingClientRect();
+        for (let i = 0; i < 20; i++) {
+          const particle = document.createElement("div");
+          particle.classList.add("particle");
+
+          const x = (Math.random() - 0.5) * 200 + "px";
+          const y = (Math.random() - 0.5) * 200 + "px";
+
+          particle.style.setProperty("--x", x);
+          particle.style.setProperty("--y", y);
+          particle.style.left = rect.left + rect.width / 2 + "px";
+          particle.style.top = rect.top + rect.height / 2 + "px";
+
+          document.body.appendChild(particle);
+          setTimeout(() => particle.remove(), 700);
+        }
+      }
+    </script>
+  </body>
 </html>
