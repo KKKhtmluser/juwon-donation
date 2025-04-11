@@ -2,23 +2,31 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>나주원기부사이트정식1버전</title>
+  <title>주원의 RNG 기부게임</title>
   <style>
     * { box-sizing: border-box; }
     body {
+      margin: 0;
       background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
       color: #fff;
       font-family: 'Segoe UI', sans-serif;
-      text-align: center;
+      display: flex;
+      justify-content: space-between;
       padding: 30px;
     }
+
+    main {
+      max-width: 800px;
+    }
+
     h1 {
       font-size: 3rem;
       margin-bottom: 20px;
       color: #ffd700;
       text-shadow: 2px 2px #000;
     }
-    .section { margin: 40px 0; }
+
+    .section { margin: 30px 0; }
     button {
       padding: 12px 24px;
       margin: 5px;
@@ -27,48 +35,23 @@
       border: none;
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-      transition: transform 0.2s, background-color 0.3s;
     }
-    button:hover {
-      transform: scale(1.05);
-    }
+    button:hover { transform: scale(1.05); }
     .donate { background-color: #ffcc00; color: black; }
     .gacha { background-color: #7b68ee; color: white; }
     .auto { background-color: #444; color: white; }
+
     .aura-box {
       margin-top: 15px;
       font-size: 20px;
       min-height: 30px;
-      animation: popUp 0.5s ease;
     }
-    @keyframes popUp {
-      from { transform: scale(0.7); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .cutscene {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: radial-gradient(circle, rgba(255,255,255,0.1), rgba(0,0,0,0.9));
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      z-index: 9999;
-      display: none;
-      animation: flashIn 0.8s ease;
-    }
-    @keyframes flashIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
+
     .storage {
       margin-top: 30px;
       padding: 15px;
       background-color: rgba(255, 255, 255, 0.05);
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(255,255,255,0.1);
     }
     .aura-item {
       cursor: pointer;
@@ -79,55 +62,85 @@
       font-size: 18px;
       color: #00ffff;
     }
-    .aura-effect {
-      position: fixed;
+
+    .roblox-character {
+      width: 150px;
+      height: 300px;
+      position: relative;
+      margin-left: 40px;
+    }
+    .part {
+      background: #ccc;
+      position: absolute;
+      border: 2px solid #888;
+    }
+    .head { width: 50px; height: 50px; top: 0; left: 50px; border-radius: 10px; }
+    .body { width: 60px; height: 80px; top: 50px; left: 45px; }
+    .arm-left, .arm-right { width: 20px; height: 70px; top: 50px; }
+    .arm-left { left: 25px; }
+    .arm-right { left: 110px; }
+    .leg-left, .leg-right { width: 25px; height: 80px; top: 130px; }
+    .leg-left { left: 45px; }
+    .leg-right { left: 80px; }
+
+    .aura-visual {
+      position: absolute;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.15;
+      width: 150px;
+      height: 300px;
+      z-index: -1;
+      border-radius: 50%;
     }
-    .effect-flame { background: radial-gradient(circle at center, rgba(255, 69, 0, 0.4), transparent); animation: pulse 2s infinite; }
-    .effect-ice { background: radial-gradient(circle at center, rgba(173, 216, 230, 0.3), transparent); animation: pulse 3s infinite; }
-    .effect-thunder { background: repeating-linear-gradient(45deg, rgba(255,255,0,0.3), transparent 20px); animation: flash 1s infinite; }
-    .effect-star { background: radial-gradient(circle, gold, transparent); animation: pulse 4s infinite; }
-    .effect-infinity { background: radial-gradient(circle, deepskyblue, transparent); animation: rotate 6s linear infinite; }
-    .effect-god { background: conic-gradient(from 0deg, white, gold, violet, white); animation: rotate 8s linear infinite; }
+    .aura-flame { background: radial-gradient(circle, rgba(255, 69, 0, 0.6), transparent); animation: pulse 2s infinite; }
+    .aura-ice { background: radial-gradient(circle, rgba(173, 216, 230, 0.5), transparent); animation: pulse 3s infinite; }
+    .aura-thunder { background: repeating-linear-gradient(45deg, rgba(255,255,0,0.4), transparent 20px); animation: flash 1.5s infinite; }
+    .aura-god { background: conic-gradient(from 0deg, white, gold, violet); animation: rotate 6s linear infinite; }
+
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
     }
     @keyframes flash {
       0%, 100% { opacity: 0.2; }
-      50% { opacity: 0.5; }
+      50% { opacity: 0.6; }
     }
     @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <h1>🌟 주원의 RNG 기부게임 🌟</h1>
-  <div class="section">
-    <button class="donate" onclick="donate()">기부하기 +1원</button>
-    <div>총 기부 금액: <span id="money">0</span>원</div>
+  <main>
+    <h1>🌟 주원의 RNG 기부게임 🌟</h1>
+    <div class="section">
+      <button class="donate" onclick="donate()">기부하기 +1원</button>
+      <div>총 기부 금액: <span id="money">0</span>원</div>
+    </div>
+    <div class="section">
+      <button class="gacha" onclick="drawAura()">🎲 아우라 뽑기</button>
+      <button class="gacha" onclick="drawAura10()">🔁 10회 뽑기</button>
+      <button class="auto" onclick="toggleAuto()">⚙️ 자동 뽑기: <span id="autoState">OFF</span></button>
+      <div class="aura-box" id="auraResult"></div>
+    </div>
+    <div class="storage">
+      <h3>📦 내 아우라 보관함 (클릭 시 착용)</h3>
+      <div id="auraStorage">없음</div>
+      <div class="active-aura" id="equippedAura">🧿 착용 중인 아우라: 없음</div>
+    </div>
+  </main>
+
+  <div class="roblox-character">
+    <div class="aura-visual" id="charAura"></div>
+    <div class="part head"></div>
+    <div class="part body"></div>
+    <div class="part arm-left"></div>
+    <div class="part arm-right"></div>
+    <div class="part leg-left"></div>
+    <div class="part leg-right"></div>
   </div>
-  <div class="section">
-    <button class="gacha" onclick="drawAura()">🎲 아우라 뽑기</button>
-    <button class="gacha" onclick="drawAura10()">🔁 10회 뽑기</button>
-    <button class="auto" onclick="toggleAuto()">⚙️ 자동 뽑기: <span id="autoState">OFF</span></button>
-    <div class="aura-box" id="auraResult"></div>
-  </div>
-  <div class="storage">
-    <h3>📦 내 아우라 보관함 (클릭 시 착용)</h3>
-    <div id="auraStorage">없음</div>
-    <div class="active-aura" id="equippedAura">🧿 착용 중인 아우라: 없음</div>
-  </div>
-  <div class="cutscene" id="cutscene">✨ 전설 아우라 획득!! ✨</div>
-  <div class="aura-effect" id="auraEffect"></div>
+
   <script>
     let money = 0;
     let auto = false;
@@ -136,19 +149,16 @@
     let equipped = null;
     const result = document.getElementById('auraResult');
     const storage = document.getElementById('auraStorage');
-    const cutscene = document.getElementById('cutscene');
     const equippedAura = document.getElementById('equippedAura');
-    const auraEffect = document.getElementById('auraEffect');
+    const charAura = document.getElementById('charAura');
 
     const auras = [
       { name: "흐릿한 아우라", rarity: "일반", chance: 40, color: "gray" },
       { name: "반짝이는 아우라", rarity: "일반", chance: 20, color: "silver" },
-      { name: "불꽃 아우라", rarity: "희귀", chance: 15, color: "orange", cutscene: true, effectClass: "effect-flame" },
-      { name: "얼음 아우라", rarity: "희귀", chance: 10, color: "skyblue", cutscene: true, effectClass: "effect-ice" },
-      { name: "천둥 아우라", rarity: "에픽", chance: 8, color: "violet", cutscene: true, effectClass: "effect-thunder" },
-      { name: "별빛 아우라", rarity: "전설", chance: 5, color: "gold", cutscene: true, effectClass: "effect-star" },
-      { name: "무한 아우라", rarity: "초월", chance: 1.5, color: "deepskyblue", cutscene: true, effectClass: "effect-infinity" },
-      { name: "창조신의 아우라", rarity: "신화", chance: 0.5, color: "white", cutscene: true, effectClass: "effect-god" }
+      { name: "불꽃 아우라", rarity: "희귀", chance: 15, color: "orange", visual: "aura-flame" },
+      { name: "얼음 아우라", rarity: "희귀", chance: 10, color: "skyblue", visual: "aura-ice" },
+      { name: "천둥 아우라", rarity: "에픽", chance: 8, color: "violet", visual: "aura-thunder" },
+      { name: "창조신의 아우라", rarity: "신화", chance: 0.5, color: "white", visual: "aura-god" }
     ];
 
     let myAuras = [];
@@ -172,7 +182,6 @@
           myAuras.push(aura);
           result.innerHTML = `🌈 <b style="color:${aura.color}">${aura.name}</b> (${aura.rarity}) 당첨!`;
           updateStorage();
-          if (aura.cutscene || aura.chance <= 10) showCutscene(aura.name);
           return;
         }
       }
@@ -200,21 +209,15 @@
       if (equipped === name) {
         equipped = null;
         equippedAura.textContent = '🧿 착용 중인 아우라: 없음';
-        auraEffect.className = 'aura-effect';
+        charAura.className = 'aura-visual';
         return;
       }
       const aura = myAuras.find(a => a.name === name);
       if (aura) {
         equipped = name;
         equippedAura.textContent = `🧿 착용 중인 아우라: ${aura.name}`;
-        auraEffect.className = `aura-effect ${aura.effectClass || ''}`;
+        charAura.className = `aura-visual ${aura.visual || ''}`;
       }
-    }
-
-    function showCutscene(name) {
-      cutscene.textContent = `✨ ${name} 획득!! ✨`;
-      cutscene.style.display = 'flex';
-      setTimeout(() => { cutscene.style.display = 'none'; }, 2500);
     }
 
     function toggleAuto() {
