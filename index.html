@@ -1,171 +1,175 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>주원의 RNG 기부게임</title>
+  <meta charset="UTF-8" />
+  <title>주원의 RNG 기부 게임</title>
   <style>
+    /* 공통 스타일 */
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-      color: #fff;
       font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      justify-content: space-between;
-      padding: 30px;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+      overflow-x: hidden;
     }
-
-    main {
-      max-width: 800px;
-    }
-
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 20px;
-      color: #ffd700;
-      text-shadow: 2px 2px #000;
-    }
-
-    .section { margin: 30px 0; }
+    .screen { display: none; padding: 40px; animation: fadeIn 0.3s ease; }
+    .active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    h1 { text-align: center; font-size: 2.5rem; color: #ffd700; }
     button {
-      padding: 12px 24px;
-      margin: 5px;
-      font-size: 16px;
-      border-radius: 12px;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      padding: 12px 24px; font-size: 16px; border-radius: 10px;
+      border: none; cursor: pointer; margin: 10px;
+      transition: transform 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
     button:hover { transform: scale(1.05); }
-    .donate { background-color: #ffcc00; color: black; }
-    .gacha { background-color: #7b68ee; color: white; }
-    .auto { background-color: #444; color: white; }
-
-    .aura-box {
-      margin-top: 15px;
-      font-size: 20px;
-      min-height: 30px;
+    .donate-btn { background: gold; color: black; }
+    .gacha-btn { background: #7b68ee; color: white; }
+    .shop-btn { background: teal; color: white; }
+    .back-btn { background: #333; color: white; }
+    .shake { animation: shake 0.4s; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
     }
-
-    .storage {
-      margin-top: 30px;
-      padding: 15px;
-      background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
+    .particle {
+      position: absolute; width: 8px; height: 8px;
+      background: #ffcc00; border-radius: 50%;
+      pointer-events: none; animation: pop 0.6s ease-out forwards;
     }
-    .aura-item {
-      cursor: pointer;
-      margin: 0 5px;
+    @keyframes pop {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0); }
     }
-    .active-aura {
-      margin-top: 20px;
-      font-size: 18px;
-      color: #00ffff;
+    .thank-you {
+      text-align: center; color: #00ffae;
+      font-size: 20px; margin-top: 20px;
+      transition: opacity 0.5s ease; opacity: 0;
     }
-
+    .thank-you.show { opacity: 1; }
+    .gacha-result, .storage, .equipped-info {
+      text-align: center; margin-top: 20px; font-size: 18px;
+    }
+    .storage span {
+      cursor: pointer; margin: 0 6px; display: inline-block;
+    }
     .roblox-character {
-      width: 150px;
-      height: 300px;
-      position: relative;
-      margin-left: 40px;
+      position: relative; width: 140px; height: 280px; margin: 30px auto;
     }
     .part {
-      background: #ccc;
-      position: absolute;
-      border: 2px solid #888;
+      background: #ddd; position: absolute; border: 2px solid #aaa;
     }
-    .head { width: 50px; height: 50px; top: 0; left: 50px; border-radius: 10px; }
-    .body { width: 60px; height: 80px; top: 50px; left: 45px; }
+    .head { width: 50px; height: 50px; top: 0; left: 45px; border-radius: 10px; }
+    .body { width: 60px; height: 80px; top: 50px; left: 40px; }
     .arm-left, .arm-right { width: 20px; height: 70px; top: 50px; }
-    .arm-left { left: 25px; }
-    .arm-right { left: 110px; }
+    .arm-left { left: 20px; } .arm-right { left: 100px; }
     .leg-left, .leg-right { width: 25px; height: 80px; top: 130px; }
-    .leg-left { left: 45px; }
-    .leg-right { left: 80px; }
-
+    .leg-left { left: 40px; } .leg-right { left: 75px; }
     .aura-visual {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 150px;
-      height: 300px;
-      z-index: -1;
+      position: absolute; top: 0; left: 0;
+      width: 140px; height: 280px; z-index: -1;
       border-radius: 50%;
     }
-    .aura-flame { background: radial-gradient(circle, rgba(255, 69, 0, 0.6), transparent); animation: pulse 2s infinite; }
-    .aura-ice { background: radial-gradient(circle, rgba(173, 216, 230, 0.5), transparent); animation: pulse 3s infinite; }
-    .aura-thunder { background: repeating-linear-gradient(45deg, rgba(255,255,0,0.4), transparent 20px); animation: flash 1.5s infinite; }
-    .aura-god { background: conic-gradient(from 0deg, white, gold, violet); animation: rotate 6s linear infinite; }
-
+    .aura-flame {
+      background: radial-gradient(circle, rgba(255,69,0,0.5), transparent);
+      animation: pulse 2s infinite;
+    }
     @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-    @keyframes flash {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 0.6; }
-    }
-    @keyframes rotate {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.1); opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1>🌟 주원의 RNG 기부게임 🌟</h1>
-    <div class="section">
-      <button class="donate" onclick="donate()">기부하기 +1원</button>
-      <div>총 기부 금액: <span id="money">0</span>원</div>
+  <!-- 💰 메인 화면 -->
+  <div id="main-screen" class="screen active">
+    <h1>💰 기부하기</h1>
+    <div style="text-align:center">
+      <div>누적 기부금: <span id="money">0</span>원</div>
+      <button id="donateBtn" class="donate-btn" onclick="donate(event)">기부하기</button>
+      <div class="thank-you" id="thankYouMsg">기부해주셔서 감사합니다!</div>
+      <br>
+      <button class="gacha-btn" onclick="switchScreen('gacha')">🎲 아우라 뽑기</button><br>
+      <button class="shop-btn" onclick="switchScreen('shop')">🛒 상점</button>
     </div>
-    <div class="section">
-      <button class="gacha" onclick="drawAura()">🎲 아우라 뽑기</button>
-      <button class="gacha" onclick="drawAura10()">🔁 10회 뽑기</button>
-      <button class="auto" onclick="toggleAuto()">⚙️ 자동 뽑기: <span id="autoState">OFF</span></button>
-      <div class="aura-box" id="auraResult"></div>
-    </div>
-    <div class="storage">
-      <h3>📦 내 아우라 보관함 (클릭 시 착용)</h3>
-      <div id="auraStorage">없음</div>
-      <div class="active-aura" id="equippedAura">🧿 착용 중인 아우라: 없음</div>
-    </div>
-  </main>
+  </div>
 
-  <div class="roblox-character">
-    <div class="aura-visual" id="charAura"></div>
-    <div class="part head"></div>
-    <div class="part body"></div>
-    <div class="part arm-left"></div>
-    <div class="part arm-right"></div>
-    <div class="part leg-left"></div>
-    <div class="part leg-right"></div>
+  <!-- 🎲 뽑기 화면 -->
+  <div id="gacha-screen" class="screen">
+    <h1>🎲 아우라 뽑기</h1>
+    <div style="text-align:center">
+      <button class="gacha-btn" onclick="drawAura()">1회 뽑기</button>
+      <button class="gacha-btn" onclick="drawAura10()">10회 뽑기</button>
+      <button class="gacha-btn" onclick="toggleAuto()">자동 뽑기: <span id="autoState">OFF</span></button><br>
+      <button class="back-btn" onclick="switchScreen('main')">← 돌아가기</button>
+    </div>
+    <div class="gacha-result" id="auraResult">아직 뽑은 아우라가 없습니다.</div>
+    <div class="storage" id="auraStorage"></div>
+    <div class="equipped-info" id="equippedAura">🧿 착용 중인 아우라: 없음</div>
+    <div class="roblox-character">
+      <div class="aura-visual" id="charAura"></div>
+      <div class="part head"></div>
+      <div class="part body"></div>
+      <div class="part arm-left"></div>
+      <div class="part arm-right"></div>
+      <div class="part leg-left"></div>
+      <div class="part leg-right"></div>
+    </div>
+  </div>
+
+  <!-- 🛒 상점 화면 (추후 구성 가능) -->
+  <div id="shop-screen" class="screen">
+    <h1>🛒 상점</h1>
+    <div style="text-align:center">
+      <p>아이템 구매는 나중에 구현 예정이에요!</p>
+      <button class="back-btn" onclick="switchScreen('main')">← 돌아가기</button>
+    </div>
   </div>
 
   <script>
     let money = 0;
+    let myAuras = [];
+    let equipped = null;
     let auto = false;
     let autoInterval;
     let luckBonus = 0;
-    let equipped = null;
-    const result = document.getElementById('auraResult');
-    const storage = document.getElementById('auraStorage');
-    const equippedAura = document.getElementById('equippedAura');
-    const charAura = document.getElementById('charAura');
 
     const auras = [
-      { name: "흐릿한 아우라", rarity: "일반", chance: 40, color: "gray" },
-      { name: "반짝이는 아우라", rarity: "일반", chance: 20, color: "silver" },
-      { name: "불꽃 아우라", rarity: "희귀", chance: 15, color: "orange", visual: "aura-flame" },
-      { name: "얼음 아우라", rarity: "희귀", chance: 10, color: "skyblue", visual: "aura-ice" },
-      { name: "천둥 아우라", rarity: "에픽", chance: 8, color: "violet", visual: "aura-thunder" },
-      { name: "창조신의 아우라", rarity: "신화", chance: 0.5, color: "white", visual: "aura-god" }
+      { name: '흐릿한 아우라', rarity: '일반', chance: 40, color: 'gray' },
+      { name: '반짝이는 아우라', rarity: '일반', chance: 20, color: 'silver' },
+      { name: '불꽃 아우라', rarity: '희귀', chance: 15, color: 'orange', visual: 'aura-flame' },
+      { name: '천둥 아우라', rarity: '에픽', chance: 5, color: 'violet' },
+      { name: '창조신의 아우라', rarity: '신화', chance: 0.5, color: 'white' }
     ];
 
-    let myAuras = [];
+    function switchScreen(screen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(`${screen}-screen`).classList.add('active');
+    }
 
-    function donate() {
-      money++;
+    function donate(e) {
+      money += 1;
       document.getElementById('money').textContent = money;
+      const btn = document.getElementById('donateBtn');
+      const msg = document.getElementById('thankYouMsg');
+      btn.classList.add('shake');
+      msg.classList.add('show');
+      setTimeout(() => {
+        btn.classList.remove('shake');
+        msg.classList.remove('show');
+      }, 1000);
+      for (let i = 0; i < 10; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = `${e.clientX}px`;
+        p.style.top = `${e.clientY}px`;
+        p.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
+        p.style.setProperty('--y', `${(Math.random() - 0.5) * 200}px`);
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 600);
+      }
     }
 
     function drawAura() {
@@ -174,13 +178,12 @@
       for (const aura of auras) {
         cumulative += aura.chance + luckBonus;
         if (roll < cumulative) {
-          const exists = myAuras.find(a => a.name === aura.name);
-          if (exists) {
-            result.innerHTML = `⚠️ <b style="color:${aura.color}">${aura.name}</b> 이미 보유 중이라 삭제되었습니다.`;
+          if (myAuras.find(a => a.name === aura.name)) {
+            document.getElementById('auraResult').textContent = `${aura.name} (중복)`;
             return;
           }
           myAuras.push(aura);
-          result.innerHTML = `🌈 <b style="color:${aura.color}">${aura.name}</b> (${aura.rarity}) 당첨!`;
+          document.getElementById('auraResult').textContent = `🌈 ${aura.name} (${aura.rarity}) 획득!`;
           updateStorage();
           return;
         }
@@ -192,42 +195,27 @@
       for (let i = 0; i < 10; i++) {
         setTimeout(() => drawAura(), i * 200);
       }
-      setTimeout(() => luckBonus = 0, 3000);
+      setTimeout(() => { luckBonus = 0; }, 4000);
     }
 
     function updateStorage() {
-      if (myAuras.length === 0) {
-        storage.textContent = "없음";
-        return;
-      }
-      const rarityOrder = ["신화", "초월", "전설", "에픽", "희귀", "일반"];
-      myAuras.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
-      storage.innerHTML = myAuras.map(a => `<span class="aura-item" style="color:${a.color}" onclick="equipAura('${a.name}')">${a.name}</span>`).join(', ');
+      const storage = document.getElementById('auraStorage');
+      storage.innerHTML = myAuras.map(a => `<span style='color:${a.color}' onclick='equipAura("${a.name}")'>${a.name}</span>`).join(', ');
     }
 
     function equipAura(name) {
-      if (equipped === name) {
-        equipped = null;
-        equippedAura.textContent = '🧿 착용 중인 아우라: 없음';
-        charAura.className = 'aura-visual';
-        return;
-      }
       const aura = myAuras.find(a => a.name === name);
-      if (aura) {
-        equipped = name;
-        equippedAura.textContent = `🧿 착용 중인 아우라: ${aura.name}`;
-        charAura.className = `aura-visual ${aura.visual || ''}`;
-      }
+      if (!aura) return;
+      equipped = name;
+      document.getElementById('equippedAura').textContent = `🧿 착용 중인 아우라: ${aura.name}`;
+      document.getElementById('charAura').className = 'aura-visual ' + (aura.visual || '');
     }
 
     function toggleAuto() {
       auto = !auto;
       document.getElementById('autoState').textContent = auto ? 'ON' : 'OFF';
-      if (auto) {
-        autoInterval = setInterval(drawAura, 1000);
-      } else {
-        clearInterval(autoInterval);
-      }
+      if (auto) autoInterval = setInterval(drawAura, 1000);
+      else clearInterval(autoInterval);
     }
   </script>
 </body>
