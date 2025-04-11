@@ -2,64 +2,166 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>주원 기부</title>
+  <title>주원의 마음 기부게임</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
+      background-color: #1e1e1e;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      background-color: #f0f8ff;
-      padding: 50px;
+      padding: 30px;
     }
 
     h1 {
-      font-size: 2.5rem;
-      color: #333;
+      font-size: 2rem;
+      margin-bottom: 10px;
     }
 
-    img {
-      width: 300px;
-      border-radius: 20px;
-      margin: 20px 0;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    .logo {
+      width: 150px;
+      border-radius: 12px;
+      margin-bottom: 20px;
     }
 
-    .counter {
-      font-size: 1.5rem;
-      margin: 20px 0;
-      color: #006400;
-    }
-
-    button {
-      font-size: 1.2rem;
-      padding: 10px 20px;
-      background-color: #32cd32;
-      color: white;
+    .donate-button {
+      padding: 15px 30px;
+      font-size: 18px;
       border: none;
+      background-color: #333;
+      color: white;
       border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      position: relative;
     }
 
-    button:hover {
-      background-color: #228b22;
+    .donate-button.shake {
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: gold;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: pop 0.6s ease-out forwards;
+    }
+
+    @keyframes pop {
+      0% { opacity: 1; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0.5); }
+    }
+
+    .total {
+      font-size: 20px;
+      color: #ffd700;
+      margin: 20px 0;
+    }
+
+    .shop {
+      margin-top: 30px;
+    }
+
+    .item {
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px auto;
+      width: 250px;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .black { background-color: black; }
+    .yellow { background-color: gold; }
+    .red { background-color: crimson; }
+    .rainbow {
+      background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet);
+      background-size: 1400% 1400%;
+      animation: rainbow 10s ease infinite;
+    }
+
+    @keyframes rainbow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
   </style>
 </head>
 <body>
-  <h1>주원을 위한 기부</h1>
-  <img src="https://github.com/KKKhtmluser/juwon-donation/blob/main/ChatGPT%20Image%202025%EB%85%84%204%EC%9B%94%2010%EC%9D%BC%20%EC%98%A4%ED%9B%84%2010_30_46.png?raw=true" alt="주원 이미지">
-  
-  <div class="counter">누적 기부 금액: <span id="donation">0</span>원</div>
-  
-  <button onclick="donate()">기부하기 💖</button>
+  <h1>주원의 마음 💖</h1>
+  <img class="logo" src="https://github.com/KKKhtmluser/juwon-donation/blob/main/ChatGPT%20Image%202025%EB%85%84%204%EC%9B%94%2010%EC%9D%BC%20%EC%98%A4%ED%9B%84%2010_30_46.png?raw=true" alt="로고">
+
+  <div class="total">총 기부 금액: <span id="totalMoney">0</span>원</div>
+  <button class="donate-button" id="donateBtn" onclick="donate(event)">기부하기 +1원</button>
+
+  <div class="shop">
+    <h2>🛒 상점</h2>
+    <div class="item black" onclick="buyItem('gun')">💣 돈총 (50원) - 클릭 시 2배 증가</div>
+    <div class="item yellow" onclick="buyItem('bot')">🤖 돈봇 (150원) - 3초마다 +1원</div>
+    <div class="item red" onclick="buyItem('megabot')">🚀 메가돈봇 (400원) - 1초마다 +1원</div>
+    <div class="item rainbow" onclick="buyItem('ultrabot')">🌈 킹갓레전더리얼티밋하이드로오메가돈봇 (1000원) - 0.05초마다 +1원</div>
+  </div>
 
   <script>
-    let amount = 0;
+    let money = 0;
+    let multiplier = 1;
+    const totalDisplay = document.getElementById('totalMoney');
+    const donateBtn = document.getElementById('donateBtn');
 
-    function donate() {
-      amount += 1;
-      document.getElementById('donation').innerText = amount.toLocaleString();
+    function donate(event) {
+      money += 1 * multiplier;
+      totalDisplay.textContent = money.toLocaleString();
+      showParticles(event);
+
+      donateBtn.classList.add("shake");
+      setTimeout(() => donateBtn.classList.remove("shake"), 500);
+    }
+
+    function showParticles(e) {
+      const rect = donateBtn.getBoundingClientRect();
+      for (let i = 0; i < 15; i++) {
+        const particle = document.createElement("div");
+        particle.classList.add("particle");
+        particle.style.left = `${rect.left + rect.width / 2}px`;
+        particle.style.top = `${rect.top + rect.height / 2}px`;
+        const x = (Math.random() - 0.5) * 200 + 'px';
+        const y = (Math.random() - 0.5) * 200 + 'px';
+        particle.style.setProperty('--x', x);
+        particle.style.setProperty('--y', y);
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 600);
+      }
+    }
+
+    function buyItem(item) {
+      if (item === 'gun' && money >= 50) {
+        money -= 50;
+        multiplier = 2;
+        alert('돈총을 구매했습니다! 앞으로 클릭당 2원!');
+      } else if (item === 'bot' && money >= 150) {
+        money -= 150;
+        setInterval(() => { money += 1; totalDisplay.textContent = money.toLocaleString(); }, 3000);
+        alert('돈봇을 구매했습니다! 3초마다 1원 추가!');
+      } else if (item === 'megabot' && money >= 400) {
+        money -= 400;
+        setInterval(() => { money += 1; totalDisplay.textContent = money.toLocaleString(); }, 1000);
+        alert('메가돈봇을 구매했습니다! 1초마다 1원 추가!');
+      } else if (item === 'ultrabot' && money >= 1000) {
+        money -= 1000;
+        setInterval(() => { money += 1; totalDisplay.textContent = money.toLocaleString(); }, 50);
+        alert('킹갓레전더리얼티밋하이드로오메가돈봇을 구매했습니다! 0.05초마다 1원!!');
+      } else {
+        alert('기부금이 부족해요!');
+      }
+      totalDisplay.textContent = money.toLocaleString();
     }
   </script>
 </body>
