@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>주원의 RNG 기부 게임</title>
+  <title>나주순기부사이트.정식1.0버전</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -44,9 +44,7 @@
     .gacha-btn { background: #7b68ee; color: white; }
     .shop-btn { background: teal; color: white; }
     .back-btn { background: #333; color: white; }
-    .shake {
-      animation: shake 0.4s;
-    }
+    .shake { animation: shake 0.4s; }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       25% { transform: translateX(-5px); }
@@ -179,6 +177,37 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
+    /* 컷신 효과 */
+    .cutscene {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 9999;
+    }
+    .cutscene .star {
+      width: 150px;
+      height: 150px;
+      border: 12px solid #ffd700;
+      border-radius: 50%;
+      animation: spinStar 2s linear infinite;
+      box-shadow: 0 0 30px 10px #fffb8f;
+      margin-bottom: 20px;
+    }
+    .cutscene-text {
+      font-size: 1.8rem;
+      color: #fffacd;
+      text-shadow: 2px 2px 8px #000;
+    }
+    @keyframes spinStar {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -218,6 +247,7 @@
     <div class="part leg-right"></div>
   </div>
 </div>
+
 <!-- 🛒 상점 화면 -->
 <div id="shop-screen" class="screen">
   <h1>🛒 상점</h1>
@@ -229,6 +259,12 @@
     <button class="back-btn" onclick="switchScreen('main')">← 돌아가기</button>
     <div id="shop-message" style="margin-top: 15px; color: lightgreen;"></div>
   </div>
+</div>
+
+<!-- 🌠 컷신 화면 -->
+<div id="cutscene" class="cutscene">
+  <div class="star"></div>
+  <div class="cutscene-text" id="cutsceneText">✨ 전설의 아우라 획득! ✨</div>
 </div>
 
 <script>
@@ -276,6 +312,14 @@
     }
   }
 
+  function showCutscene(name) {
+    const cut = document.getElementById('cutscene');
+    const text = document.getElementById('cutsceneText');
+    text.textContent = `✨ ${name} 획득! ✨`;
+    cut.style.display = 'flex';
+    setTimeout(() => { cut.style.display = 'none'; }, 3000);
+  }
+
   function drawAura() {
     const roll = Math.random() * 100;
     let cumulative = 0;
@@ -288,6 +332,9 @@
         }
         myAuras.push(aura);
         document.getElementById('auraResult').textContent = `🌈 ${aura.name} (${aura.rarity}) 획득!`;
+        if (['에픽', '신화'].includes(aura.rarity)) {
+          showCutscene(aura.name);
+        }
         updateStorage();
         return;
       }
