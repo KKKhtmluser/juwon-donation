@@ -1,168 +1,66 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <title>주원의 마음 기부사이트</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 20px;
-        background-color: #1e1e1e;
-        font-family: 'Segoe UI', sans-serif;
-        color: white;
-        text-align: center;
-        overflow-x: hidden;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>주원 기부</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      background-color: #f0f8ff;
+      padding: 50px;
+    }
 
-      .logo {
-        margin-bottom: 20px;
-      }
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+    }
 
-      .logo img {
-        width: 150px;
-      }
+    img {
+      width: 300px;
+      border-radius: 20px;
+      margin: 20px 0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-      .description {
-        font-size: 20px;
-        margin-bottom: 20px;
-        line-height: 1.6;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-      }
+    .counter {
+      font-size: 1.5rem;
+      margin: 20px 0;
+      color: #006400;
+    }
 
-      .donate-button {
-        display: inline-block;
-        padding: 15px 30px;
-        font-size: 18px;
-        background-color: rgba(0, 0, 0, 0.6);
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.3s, transform 0.2s;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        border: none;
-        position: relative;
-        overflow: visible;
-      }
+    button {
+      font-size: 1.2rem;
+      padding: 10px 20px;
+      background-color: #32cd32;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
 
-      .donate-button:hover {
-        background-color: rgba(0, 0, 0, 0.8);
-        transform: scale(1.05);
-      }
+    button:hover {
+      background-color: #228b22;
+    }
+  </style>
+</head>
+<body>
+  <h1>주원을 위한 기부</h1>
+  <img src="https://github.com/KKKhtmluser/juwon-donation/blob/main/ChatGPT%20Image%202025%EB%85%84%204%EC%9B%94%2010%EC%9D%BC%20%EC%98%A4%ED%9B%84%2010_30_46.png?raw=true" alt="주원 이미지">
+  
+  <div class="counter">누적 기부 금액: <span id="donation">0</span>원</div>
+  
+  <button onclick="donate()">기부하기 💖</button>
 
-      .thank-you {
-        margin-top: 30px;
-        font-size: 22px;
-        color: #00ffae;
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.8s ease, transform 0.8s ease;
-      }
+  <script>
+    let amount = 0;
 
-      .thank-you.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      .total {
-        margin-top: 20px;
-        font-size: 20px;
-        color: #ffd700;
-      }
-
-      .particle {
-        position: absolute;
-        width: 8px;
-        height: 8px;
-        background-color: #ffcc00;
-        border-radius: 50%;
-        pointer-events: none;
-        animation: pop 0.6s ease-out forwards;
-      }
-
-      @keyframes pop {
-        0% {
-          opacity: 1;
-          transform: translate(0, 0) scale(1);
-        }
-        100% {
-          opacity: 0;
-          transform: translate(var(--x), var(--y)) scale(0.5);
-        }
-      }
-
-      @keyframes shake {
-        0% { transform: translateX(0); }
-        20% { transform: translateX(-5px); }
-        40% { transform: translateX(5px); }
-        60% { transform: translateX(-5px); }
-        80% { transform: translateX(5px); }
-        100% { transform: translateX(0); }
-      }
-
-      .shake {
-        animation: shake 0.5s;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="logo">
-      <img src="https://github.com/KKKhtmluser/juwon-donation/blob/main/ChatGPT%20Image%202025%EB%85%84%204%EC%9B%94%2010%EC%9D%BC%20%EC%98%A4%ED%9B%84%2010_30_46.png?raw=true" alt="주원의 마음 로고">
-    </div>
-
-    <div class="description">
-      안녕하세요!<br>
-      이 사이트는 <strong>나주원</strong>의 기부 프로젝트를 소개하고,<br>
-      더 나은 세상을 만들기 위한 따뜻한 마음을 <strong>1원씩 함께 모아가는 공간</strong>입니다.  
-      <br><br>👇 아래 버튼을 누를 때마다 ₩1이 기부됩니다!
-    </div>
-
-    <button class="donate-button" id="donateBtn" onclick="completeDonation(event)">기부하기 (₩1)</button>
-
-    <div class="total" id="totalDonated">총 기부 금액: ₩0</div>
-    <div class="thank-you" id="thankYouMessage"></div>
-
-    <script>
-      let totalAmount = 0;
-
-      function completeDonation(event) {
-        const message = document.getElementById("thankYouMessage");
-        const button = document.getElementById("donateBtn");
-        const totalDisplay = document.getElementById("totalDonated");
-
-        // 흔들기 효과
-        button.classList.add("shake");
-        setTimeout(() => button.classList.remove("shake"), 500);
-
-        // 1원 기부 처리
-        totalAmount += 1;
-        totalDisplay.textContent = `총 기부 금액: ₩${totalAmount.toLocaleString()}`;
-
-        // 감사 메시지
-        message.textContent = `💖 ₩1 기부 감사합니다!`;
-        message.classList.add("show");
-        setTimeout(() => message.classList.remove("show"), 3000);
-
-        // 파티클 효과
-        const rect = button.getBoundingClientRect();
-        for (let i = 0; i < 20; i++) {
-          const particle = document.createElement("div");
-          particle.classList.add("particle");
-
-          const x = (Math.random() - 0.5) * 200 + "px";
-          const y = (Math.random() - 0.5) * 200 + "px";
-
-          particle.style.setProperty("--x", x);
-          particle.style.setProperty("--y", y);
-          particle.style.left = rect.left + rect.width / 2 + "px";
-          particle.style.top = rect.top + rect.height / 2 + "px";
-
-          document.body.appendChild(particle);
-          setTimeout(() => particle.remove(), 700);
-        }
-      }
-    </script>
-  </body>
+    function donate() {
+      amount += 1;
+      document.getElementById('donation').innerText = amount.toLocaleString();
+    }
+  </script>
+</body>
 </html>
