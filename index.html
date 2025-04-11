@@ -1,167 +1,187 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>주원의 마음 기부게임</title>
+  <meta charset="UTF-8">
+  <title>주원의 마음 RNG 기부게임</title>
   <style>
+    * { box-sizing: border-box; }
     body {
-      background-color: #1e1e1e;
-      color: white;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
       padding: 30px;
     }
 
     h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
-    }
-
-    .logo {
-      width: 150px;
-      border-radius: 12px;
+      font-size: 3rem;
       margin-bottom: 20px;
-    }
-
-    .donate-button {
-      padding: 15px 30px;
-      font-size: 18px;
-      border: none;
-      background-color: #333;
-      color: white;
-      border-radius: 10px;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .donate-button.shake {
-      animation: shake 0.5s;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-
-    .particle {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background-color: gold;
-      border-radius: 50%;
-      pointer-events: none;
-      animation: pop 0.6s ease-out forwards;
-    }
-
-    @keyframes pop {
-      0% { opacity: 1; transform: translate(0, 0) scale(1); }
-      100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0.5); }
-    }
-
-    .total {
-      font-size: 20px;
       color: #ffd700;
-      margin: 20px 0;
+      text-shadow: 2px 2px #000;
     }
 
-    .shop {
-      margin-top: 30px;
-    }
+    .section { margin: 40px 0; }
 
-    .item {
-      padding: 10px;
-      border-radius: 10px;
-      margin: 10px auto;
-      width: 250px;
+    button {
+      padding: 12px 24px;
+      margin: 5px;
       font-size: 16px;
-      color: white;
+      border-radius: 12px;
+      border: none;
       cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .donate { background-color: #ffcc00; color: black; }
+    .gacha { background-color: #7b68ee; color: white; }
+    .auto { background-color: #444; color: white; }
+
+    .aura-box {
+      margin-top: 15px;
+      font-size: 20px;
+      min-height: 30px;
+      animation: popUp 0.5s ease;
+    }
+    @keyframes popUp {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
-    .black { background-color: black; }
-    .yellow { background-color: gold; }
-    .red { background-color: crimson; }
-    .rainbow {
-      background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet);
-      background-size: 1400% 1400%;
-      animation: rainbow 10s ease infinite;
+    .cutscene {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: radial-gradient(circle, rgba(255,255,255,0.1), rgba(0,0,0,0.9));
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      z-index: 9999;
+      display: none;
+      animation: flashIn 0.8s ease;
+    }
+    @keyframes flashIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
-    @keyframes rainbow {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    .storage {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    }
+    .storage h3 {
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>주원의 마음 💖</h1>
-  <img class="logo" src="https://github.com/KKKhtmluser/juwon-donation/blob/main/ChatGPT%20Image%202025%EB%85%84%204%EC%9B%94%2010%EC%9D%BC%20%EC%98%A4%ED%9B%84%2010_30_46.png?raw=true" alt="로고">
+  <h1>🌟 주원의 RNG 기부게임 🌟</h1>
 
-  <div class="total">총 기부 금액: <span id="totalMoney">0</span>원</div>
-  <button class="donate-button" id="donateBtn" onclick="donate(event)">기부하기 +1원</button>
-
-  <div class="shop">
-    <h2>🛒 상점</h2>
-    <div class="item black" onclick="buyItem('gun')">💣 돈총 (50원) - 클릭 시 2배 증가</div>
-    <div class="item yellow" onclick="buyItem('bot')">🤖 돈봇 (150원) - 3초마다 +1원</div>
-    <div class="item red" onclick="buyItem('megabot')">🚀 메가돈봇 (400원) - 1초마다 +1원</div>
-    <div class="item rainbow" onclick="buyItem('ultrabot')">🌈 킹갓레전더리얼티밋하이드로오메가돈봇 (1000원) - 0.05초마다 +1원</div>
+  <div class="section">
+    <button class="donate" onclick="donate()">기부하기 +1원</button>
+    <div>총 기부 금액: <span id="money">0</span>원</div>
   </div>
+
+  <div class="section">
+    <button class="gacha" onclick="drawAura()">🎲 아우라 뽑기</button>
+    <button class="gacha" onclick="drawAura10()">🔁 10회 뽑기</button>
+    <button class="auto" onclick="toggleAuto()">⚙️ 자동 뽑기: <span id="autoState">OFF</span></button>
+    <div class="aura-box" id="auraResult"></div>
+  </div>
+
+  <div class="storage">
+    <h3>📦 내 아우라 보관함</h3>
+    <div id="auraStorage">없음</div>
+  </div>
+
+  <div class="cutscene" id="cutscene">✨ 전설 아우라 획득!! ✨</div>
 
   <script>
     let money = 0;
-    let multiplier = 1;
-    const totalDisplay = document.getElementById('totalMoney');
-    const donateBtn = document.getElementById('donateBtn');
+    let auto = false;
+    let autoInterval;
+    let luckBonus = 0;
+    const result = document.getElementById('auraResult');
+    const storage = document.getElementById('auraStorage');
+    const cutscene = document.getElementById('cutscene');
 
-    function donate(event) {
-      money += 1 * multiplier;
-      totalDisplay.textContent = money.toLocaleString();
-      showParticles(event);
+    const auras = [
+      { name: "흐릿한 아우라", rarity: "일반", chance: 50, color: "gray" },
+      { name: "반짝이는 아우라", rarity: "일반", chance: 20, color: "silver" },
+      { name: "불꽃 아우라", rarity: "희귀", chance: 10, color: "orange", cutscene: true },
+      { name: "얼음 아우라", rarity: "희귀", chance: 7, color: "skyblue", cutscene: true },
+      { name: "천둥 아우라", rarity: "에픽", chance: 5, color: "violet", cutscene: true },
+      { name: "별빛 아우라", rarity: "전설", chance: 3, color: "gold", cutscene: true },
+      { name: "무한 아우라", rarity: "초월", chance: 0.8, color: "deepskyblue", cutscene: true },
+      { name: "창조신의 아우라", rarity: "신화", chance: 0.2, color: "white", cutscene: true },
+    ];
 
-      donateBtn.classList.add("shake");
-      setTimeout(() => donateBtn.classList.remove("shake"), 500);
+    let myAuras = [];
+
+    function donate() {
+      money++;
+      document.getElementById('money').textContent = money;
     }
 
-    function showParticles(e) {
-      const rect = donateBtn.getBoundingClientRect();
-      for (let i = 0; i < 15; i++) {
-        const particle = document.createElement("div");
-        particle.classList.add("particle");
-        particle.style.left = `${rect.left + rect.width / 2}px`;
-        particle.style.top = `${rect.top + rect.height / 2}px`;
-        const x = (Math.random() - 0.5) * 200 + 'px';
-        const y = (Math.random() - 0.5) * 200 + 'px';
-        particle.style.setProperty('--x', x);
-        particle.style.setProperty('--y', y);
-        document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 600);
+    function drawAura() {
+      const roll = Math.random() * 100;
+      let cumulative = 0;
+      for (const aura of auras) {
+        cumulative += aura.chance + luckBonus;
+        if (roll < cumulative) {
+          const exists = myAuras.find(a => a.name === aura.name);
+          if (exists) {
+            result.innerHTML = `⚠️ <b style="color:${aura.color}">${aura.name}</b> 이미 보유 중이라 삭제되었습니다.`;
+            return;
+          }
+          myAuras.push(aura);
+          result.innerHTML = `🌈 <b style="color:${aura.color}">${aura.name}</b> (${aura.rarity}) 당첨!`;
+          updateStorage();
+          if (aura.cutscene || aura.chance <= 10) showCutscene(aura.name);
+          return;
+        }
       }
     }
 
-    function buyItem(item) {
-      if (item === 'gun' && money >= 50) {
-        money -= 50;
-        multiplier = 2;
-        alert('돈총을 구매했습니다! 앞으로 클릭당 2원!');
-      } else if (item === 'bot' && money >= 150) {
-        money -= 150;
-        setInterval(() => { money += 1; totalDisplay.textContent = money.toLocaleString(); }, 3000);
-        alert('돈봇을 구매했습니다! 3초마다 1원 추가!');
-      } else if (item === 'megabot' && money >= 400) {
-        money -= 400;
-        setInterval(() => { money += 1; totalDisplay.textContent = money.toLocaleString(); }, 1000);
-        alert('메가돈봇을 구매했습니다! 1초마다 1원 추가!');
-      } else if (item === 'ultrabot' && money >= 1000) {
-        money -= 1000;
-        setInterval(() => { money += 1; totalDisplay.textContent = money.toLocaleString(); }, 50);
-        alert('킹갓레전더리얼티밋하이드로오메가돈봇을 구매했습니다! 0.05초마다 1원!!');
+    function drawAura10() {
+      luckBonus += 0.5;
+      for (let i = 0; i < 10; i++) {
+        setTimeout(() => drawAura(), i * 200);
+      }
+      setTimeout(() => luckBonus = 0, 3000);
+    }
+
+    function updateStorage() {
+      if (myAuras.length === 0) {
+        storage.textContent = "없음";
+        return;
+      }
+      const rarityOrder = ["신화", "초월", "전설", "에픽", "희귀", "일반"];
+      myAuras.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+      storage.innerHTML = myAuras.map(a => `<span style="color:${a.color}">${a.name}</span>`).join(', ');
+    }
+
+    function showCutscene(name) {
+      cutscene.textContent = `✨ ${name} 획득!! ✨`;
+      cutscene.style.display = 'flex';
+      setTimeout(() => { cutscene.style.display = 'none'; }, 2500);
+    }
+
+    function toggleAuto() {
+      auto = !auto;
+      document.getElementById('autoState').textContent = auto ? 'ON' : 'OFF';
+      if (auto) {
+        autoInterval = setInterval(drawAura, 1000);
       } else {
-        alert('기부금이 부족해요!');
+        clearInterval(autoInterval);
       }
-      totalDisplay.textContent = money.toLocaleString();
     }
   </script>
 </body>
