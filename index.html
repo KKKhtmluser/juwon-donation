@@ -79,6 +79,30 @@
     .storage h3 {
       margin-bottom: 10px;
     }
+    .aura-item {
+      cursor: pointer;
+      margin: 0 5px;
+    }
+
+    .active-aura {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #00ffff;
+    }
+
+    .aura-effect {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 5000;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      opacity: 0.15;
+    }
   </style>
 </head>
 <body>
@@ -97,30 +121,35 @@
   </div>
 
   <div class="storage">
-    <h3>📦 내 아우라 보관함</h3>
+    <h3>📦 내 아우라 보관함 (클릭 시 착용)</h3>
     <div id="auraStorage">없음</div>
+    <div class="active-aura" id="equippedAura">🧿 착용 중인 아우라: 없음</div>
   </div>
 
   <div class="cutscene" id="cutscene">✨ 전설 아우라 획득!! ✨</div>
+  <div class="aura-effect" id="auraEffect"></div>
 
   <script>
     let money = 0;
     let auto = false;
     let autoInterval;
     let luckBonus = 0;
+    let equipped = null;
     const result = document.getElementById('auraResult');
     const storage = document.getElementById('auraStorage');
     const cutscene = document.getElementById('cutscene');
+    const equippedAura = document.getElementById('equippedAura');
+    const auraEffect = document.getElementById('auraEffect');
 
     const auras = [
       { name: "흐릿한 아우라", rarity: "일반", chance: 50, color: "gray" },
       { name: "반짝이는 아우라", rarity: "일반", chance: 20, color: "silver" },
-      { name: "불꽃 아우라", rarity: "희귀", chance: 10, color: "orange", cutscene: true },
-      { name: "얼음 아우라", rarity: "희귀", chance: 7, color: "skyblue", cutscene: true },
-      { name: "천둥 아우라", rarity: "에픽", chance: 5, color: "violet", cutscene: true },
-      { name: "별빛 아우라", rarity: "전설", chance: 3, color: "gold", cutscene: true },
-      { name: "무한 아우라", rarity: "초월", chance: 0.8, color: "deepskyblue", cutscene: true },
-      { name: "창조신의 아우라", rarity: "신화", chance: 0.2, color: "white", cutscene: true },
+      { name: "불꽃 아우라", rarity: "희귀", chance: 10, color: "orange", cutscene: true, effect: "🔥" },
+      { name: "얼음 아우라", rarity: "희귀", chance: 7, color: "skyblue", cutscene: true, effect: "❄️" },
+      { name: "천둥 아우라", rarity: "에픽", chance: 5, color: "violet", cutscene: true, effect: "⚡" },
+      { name: "별빛 아우라", rarity: "전설", chance: 3, color: "gold", cutscene: true, effect: "✨" },
+      { name: "무한 아우라", rarity: "초월", chance: 0.8, color: "deepskyblue", cutscene: true, effect: "♾️" },
+      { name: "창조신의 아우라", rarity: "신화", chance: 0.2, color: "white", cutscene: true, effect: "🌀" },
     ];
 
     let myAuras = [];
@@ -165,7 +194,22 @@
       }
       const rarityOrder = ["신화", "초월", "전설", "에픽", "희귀", "일반"];
       myAuras.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
-      storage.innerHTML = myAuras.map(a => `<span style="color:${a.color}">${a.name}</span>`).join(', ');
+      storage.innerHTML = myAuras.map(a => `<span class="aura-item" style="color:${a.color}" onclick="equipAura('${a.name}')">${a.name}</span>`).join(', ');
+    }
+
+    function equipAura(name) {
+      if (equipped === name) {
+        equipped = null;
+        equippedAura.textContent = '🧿 착용 중인 아우라: 없음';
+        auraEffect.style.backgroundImage = '';
+        return;
+      }
+      const aura = myAuras.find(a => a.name === name);
+      if (aura) {
+        equipped = name;
+        equippedAura.textContent = `🧿 착용 중인 아우라: ${aura.name}`;
+        auraEffect.style.backgroundImage = `url('https://twemoji.maxcdn.com/v/latest/svg/${aura.effect.codePointAt(0).toString(16)}.svg')`;
+      }
     }
 
     function showCutscene(name) {
