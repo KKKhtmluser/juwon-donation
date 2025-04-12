@@ -1,460 +1,80 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="EUC-KR" />
-  <title>나주순기부사이트.정식1.0버전</title>
+  <meta charset="UTF-8" />
+  <title>주원의 RNG 기부 게임</title>
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      background: radial-gradient(circle, #1b2735 0%, #090a0f 100%);
+      overflow: hidden;
+      animation: backgroundShift 10s infinite alternate;
       color: white;
-      overflow-x: hidden;
     }
-    .screen {
-      display: none;
-      padding: 40px;
-      animation: fadeIn 0.3s ease;
+    @keyframes backgroundShift {
+      0% { background-position: 0 0; }
+      100% { background-position: 100% 100%; }
     }
+    .screen { display: none; padding: 40px; }
     .active { display: block; }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    h1 {
-      text-align: center;
-      font-size: 2.5rem;
-      color: #ffd700;
-    }
-    button {
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      margin: 10px;
-      transition: transform 0.2s;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    button:hover {
-      transform: scale(1.05);
-    }
-    .donate-btn { background: gold; color: black; }
-    .gacha-btn { background: #7b68ee; color: white; }
-    .shop-btn { background: teal; color: white; }
-    .back-btn { background: #333; color: white; }
-    .shake { animation: shake 0.4s; }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-    }
-    .particle {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background: #ffcc00;
-      border-radius: 50%;
-      pointer-events: none;
-      animation: pop 0.6s ease-out forwards;
-    }
-    @keyframes pop {
-      0% { opacity: 1; transform: scale(1); }
-      100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0); }
-    }
-    .thank-you {
-      text-align: center;
-      color: #00ffae;
-      font-size: 20px;
-      margin-top: 20px;
-      transition: opacity 0.5s ease;
-      opacity: 0;
-    }
-    .thank-you.show {
-      opacity: 1;
-    }
-    .gacha-result, .storage, .equipped-info {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 18px;
-    }
-    .storage span {
-      cursor: pointer;
-      margin: 0 6px;
-      display: inline-block;
-    }
-    .roblox-character {
-      position: relative;
-      width: 140px;
-      height: 280px;
-      margin: 30px auto;
-    }
-    .part {
-      background: #ddd;
-      position: absolute;
-      border: 2px solid #aaa;
-    }
-    .head {
-      width: 50px;
-      height: 50px;
-      top: 0;
-      left: 45px;
-      border-radius: 10px;
-      animation: nod 2s ease-in-out infinite;
-      transform-origin: center;
-    }
-    .body {
-      width: 60px;
-      height: 80px;
-      top: 50px;
-      left: 40px;
-      animation: bounce-body 2s ease-in-out infinite;
-    }
-    .arm-left, .arm-right {
-      width: 20px;
-      height: 70px;
-      top: 50px;
-      animation: walk-arm 2s ease-in-out infinite;
-      transform-origin: top center;
-    }
-    .arm-left { left: 20px; }
-    .arm-right { left: 100px; }
-    .leg-left, .leg-right {
-      width: 25px;
-      height: 80px;
-      top: 130px;
-      animation: walk-leg 2s ease-in-out infinite;
-      transform-origin: top center;
-    }
-    .leg-left { left: 40px; }
-    .leg-right { left: 75px; }
 
-    @keyframes walk-arm {
-      0%, 100% { transform: rotate(10deg); }
-      50% { transform: rotate(-10deg); }
-    }
-    @keyframes walk-leg {
-      0%, 100% { transform: rotate(-10deg); }
-      50% { transform: rotate(10deg); }
-    }
-    @keyframes bounce-body {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
-    }
-    @keyframes nod {
-      0%, 100% { transform: rotate(0deg); }
-      50% { transform: rotate(5deg); }
-    }
-
-    .aura-visual {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 140px;
-      height: 280px;
-      z-index: -1;
-      border-radius: 50%;
-    }
-    .aura-flame {
-      background: radial-gradient(circle, rgba(255,69,0,0.5), transparent);
-      animation: pulse 2s infinite;
-    }
-    .aura-thunder {
-      background: radial-gradient(circle, rgba(138,43,226,0.5), transparent);
-      animation: pulse 1.5s infinite;
-    }
-    .aura-god {
-      background: conic-gradient(from 0deg, red, orange, yellow, green, cyan, blue, violet, red);
-      animation: spin 1s linear infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 0.7; }
-      50% { transform: scale(1.1); opacity: 1; }
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* 컷신 효과 */
-    .cutscene {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.9);
-      display: none;
+    .main-ui {
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      z-index: 9999;
+      height: 100vh;
+      text-align: center;
     }
-    .cutscene .star {
-      width: 150px;
-      height: 150px;
-      border: 12px solid #ffd700;
-      border-radius: 50%;
-      animation: spinStar 2s linear infinite;
-      box-shadow: 0 0 30px 10px #fffb8f;
-      margin-bottom: 20px;
+    .main-logo {
+      font-size: 3rem;
+      color: #ffd700;
+      margin-bottom: 10px;
+      animation: bounceLogo 2s ease infinite;
     }
-    .cutscene-text {
-      font-size: 1.8rem;
-      color: #fffacd;
-      text-shadow: 2px 2px 8px #000;
+    @keyframes bounceLogo {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
     }
-    @keyframes spinStar {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .main-subtext {
+      color: #eee;
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+    }
+    .main-btn {
+      font-size: 1.3rem;
+      padding: 15px 40px;
+      border-radius: 20px;
+      margin: 10px;
+      border: none;
+      background: linear-gradient(45deg, #ffd700, #ffae00);
+      color: black;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+    }
+    .main-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 30px rgba(255, 215, 0, 0.6);
+    }
+    .main-money {
+      margin-top: 50px;
+      font-size: 1.2rem;
+      color: #00ffcc;
     }
   </style>
 </head>
 <body>
-  <div id="main-screen" class="screen active">
-    <h1>나주순기부사이트</h1>
-    <div class="roblox-character">
-      <div class="part head"></div>
-      <div class="part body"></div>
-      <div class="part arm-left"></div>
-      <div class="part arm-right"></div>
-      <div class="part leg-left"></div>
-      <div class="part leg-right"></div>
-    </div>
-    <button class="donate-btn">기부하기</button>
-    <button class="gacha-btn">아우라 뽑기</button>
-    <button class="shop-btn">상점</button>
+  <div class="main-ui screen active" id="main-screen">
+    <div class="main-logo">🌙 주원의 마음</div>
+    <div class="main-subtext">✨ 따뜻한 RNG 기부 게임 ✨</div>
+    <button class="main-btn" onclick="donate(event)">💰 기부하기</button>
+    <button class="main-btn" onclick="switchScreen('gacha')">🎲 아우라 뽑기</button>
+    <button class="main-btn" onclick="switchScreen('shop')">🛒 상점</button>
+    <div class="main-money">누적 기부금: <span id="money">0</span>원</div>
   </div>
-
-  <div id="gacha-screen" class="screen">
-    <h1>아우라 뽑기</h1>
-    <button class="gacha-btn">뽑기</button>
-    <button class="back-btn">뒤로 가기</button>
-    <div id="gacha-result" class="gacha-result"></div>
-    <div id="storage" class="storage">
-      <h2>아우라 보관함</h2>
-      <!-- 아우라 목록이 이곳에 추가됩니다 -->
-    </div>
-    <div id="equipped-info" class="equipped-info"></div>
-  </div>
-
-  <div id="donate-screen" class="screen">
-    <h1>기부 완료</h1>
-    <p class="thank-you">기부해주셔서 감사합니다!</p>
-    <button class="back-btn">뒤로 가기</button>
-  </div>
-
-  <div class="cutscene" id="cutscene">
-    <div class="star"></div>
-    <div class="cutscene-text">희귀 아우라가 나왔습니다!</div>
-  </div>
-
-  <script>
-    let activeScreen = document.querySelector('.screen.active');
-    let donateBtn = document.querySelector('.donate-btn');
-    let gachaBtn = document.querySelector('.gacha-btn');
-    let shopBtn = document.querySelector('.shop-btn');
-    let backBtns = document.querySelectorAll('.back-btn');
-    let thankYouMsg = document.querySelector('.thank-you');
-    let cutscene = document.getElementById('cutscene');
-    let gachaResult = document.getElementById('gacha-result');
-    let storage = document.getElementById('storage');
-    let equippedInfo = document.getElementById('equipped-info');
-    
-    let auraInventory = [];
-    let equippedAura = null;
-
-    // 기부 버튼 클릭
-    donateBtn.addEventListener('click', () => {
-      thankYouMsg.classList.add('show');
-      setTimeout(() => {
-        thankYouMsg.classList.remove('show');
-      }, 3000);
-    });
-
-    // 아우라 뽑기 버튼 클릭
-    gachaBtn.addEventListener('click', () => {
-      showCutscene();
-      setTimeout(() => {
-        let aura = getRandomAura();
-        auraInventory.push(aura);
-        displayAuraResult(aura);
-        updateAuraStorage();
-        hideCutscene();
-      }, 3000);
-    });
-
-    // 뒤로 가기 버튼 클릭
-    backBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        switchScreen('main-screen');
-      });
-    });
-
-    // 화면 전환 함수
-    function switchScreen(screenId) {
-      activeScreen.classList.remove('active');
-      activeScreen = document.getElementById(screenId);
-      activeScreen.classList.add('active');
-    }
-
-    // 아우라 랜덤 선택 함수
-    function getRandomAura() {
-      const auras = ['Flame Aura', 'Thunder Aura', 'God Aura'];
-      const randomIndex = Math.floor(Math.random() * auras.length);
-      return auras[randomIndex];
-    }
-
-    // 아우라 결과 출력
-    function displayAuraResult(aura) {
-      gachaResult.textContent = `획득한 아우라: ${aura}`;
-    }
-
-    // 아우라 보관함 업데이트
-    function updateAuraStorage() {
-      storage.innerHTML = '<h2>아우라 보관함</h2>';
-      auraInventory.forEach((aura, index) => {
-        const auraElement = document.createElement('span');
-        auraElement.textContent = aura;
-        auraElement.addEventListener('click', () => {
-          equipAura(aura);
-        });
-        storage.appendChild(auraElement);
-      });
-    }
-
-    // 아우라 장착
-    function equipAura(aura) {
-      equippedAura = aura;
-      equippedInfo.textContent = `장착된 아우라: ${aura}`;
-      updateAuraStorage();
-    }
-
-    // 컷신 효과 보이기
-    function showCutscene() {
-      cutscene.style.display = 'flex';
-    }
-
-    // 컷신 효과 숨기기
-    function hideCutscene() {
-      cutscene.style.display = 'none';
-    }
-  </script>
 </body>
 </html>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f0f0f0;
-      margin: 0;
-      padding: 0;
-    }
-    .screen {
-      display: none;
-      text-align: center;
-      padding: 20px;
-    }
-    .screen.active {
-      display: block;
-    }
-    h1 {
-      font-size: 2em;
-      margin-bottom: 20px;
-    }
-    .roblox-character {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-    }
-    .part {
-      width: 40px;
-      height: 40px;
-      margin: 5px;
-      background-color: #000;
-      border-radius: 50%;
-    }
-    .head { background-color: #ffcc00; }
-    .body { background-color: #00ccff; }
-    .arm-left { background-color: #ff9900; }
-    .arm-right { background-color: #ff9900; }
-    .leg-left { background-color: #ff0033; }
-    .leg-right { background-color: #ff0033; }
-    button {
-      background-color: #008CBA;
-      border: none;
-      color: white;
-      padding: 15px 32px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin: 4px 2px;
-      cursor: pointer;
-      border-radius: 12px;
-    }
-    .donate-btn, .gacha-btn, .shop-btn {
-      margin: 10px;
-    }
-    .gacha-result {
-      font-size: 1.5em;
-      margin-top: 20px;
-    }
-    .storage span {
-      display: block;
-      margin: 5px 0;
-      cursor: pointer;
-    }
-    .equipped-info {
-      margin-top: 20px;
-      font-size: 1.2em;
-    }
-    .cutscene {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      font-size: 2em;
-      font-weight: bold;
-    }
-    .star {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100px;
-      height: 100px;
-      background-color: white;
-      border-radius: 50%;
-      animation: rotateStars 1.5s infinite linear;
-    }
-    .cutscene-text {
-      position: absolute;
-      color: white;
-      text-align: center;
-      animation: fadeInText 1.5s ease-in-out;
-    }
 
-    @keyframes rotateStars {
-      0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-      }
-      100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-      }
-    }
-    @keyframes fadeInText {
-      0% {
-        opacity: 0;
-      }
-      100% {
-        opacity: 1;
-      }
-    }
-  </style>
-</html>
