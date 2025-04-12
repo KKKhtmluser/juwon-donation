@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="EUC-KR" />
   <title>나주순기부사이트.정식1.0버전</title>
   <style>
     * { box-sizing: border-box; }
@@ -211,182 +211,250 @@
   </style>
 </head>
 <body>
-
-<!-- 💰 메인 화면 -->
-<div id="main-screen" class="screen active">
-  <h1>💰 기부하기</h1>
-  <div style="text-align:center">
-    <div>누적 기부금: <span id="money">0</span>원</div>
-    <button id="donateBtn" class="donate-btn" onclick="donate(event)">기부하기</button>
-    <div class="thank-you" id="thankYouMsg">기부해주셔서 감사합니다!</div>
-    <br>
-    <button class="gacha-btn" onclick="switchScreen('gacha')">🎲 아우라 뽑기</button><br>
-    <button class="shop-btn" onclick="switchScreen('shop')">🛒 상점</button>
+  <div id="main-screen" class="screen active">
+    <h1>나주순기부사이트</h1>
+    <div class="roblox-character">
+      <div class="part head"></div>
+      <div class="part body"></div>
+      <div class="part arm-left"></div>
+      <div class="part arm-right"></div>
+      <div class="part leg-left"></div>
+      <div class="part leg-right"></div>
+    </div>
+    <button class="donate-btn">기부하기</button>
+    <button class="gacha-btn">아우라 뽑기</button>
+    <button class="shop-btn">상점</button>
   </div>
-</div>
 
-<!-- 🎲 뽑기 화면 -->
-<div id="gacha-screen" class="screen">
-  <h1>🎲 아우라 뽑기</h1>
-  <div style="text-align:center">
-    <button class="gacha-btn" onclick="drawAura()">1회 뽑기</button>
-    <button class="gacha-btn" onclick="drawAura10()">10회 뽑기</button>
-    <button class="gacha-btn" onclick="toggleAuto()">자동 뽑기: <span id="autoState">OFF</span></button><br>
-    <button class="back-btn" onclick="switchScreen('main')">← 돌아가기</button>
+  <div id="gacha-screen" class="screen">
+    <h1>아우라 뽑기</h1>
+    <button class="gacha-btn">뽑기</button>
+    <button class="back-btn">뒤로 가기</button>
+    <div id="gacha-result" class="gacha-result"></div>
+    <div id="storage" class="storage">
+      <h2>아우라 보관함</h2>
+      <!-- 아우라 목록이 이곳에 추가됩니다 -->
+    </div>
+    <div id="equipped-info" class="equipped-info"></div>
   </div>
-  <div class="gacha-result" id="auraResult">아직 뽑은 아우라가 없습니다.</div>
-  <div class="storage" id="auraStorage"></div>
-  <div class="equipped-info" id="equippedAura">🧿 착용 중인 아우라: 없음</div>
-  <div class="roblox-character">
-    <div class="aura-visual" id="charAura"></div>
-    <div class="part head"></div>
-    <div class="part body"></div>
-    <div class="part arm-left"></div>
-    <div class="part arm-right"></div>
-    <div class="part leg-left"></div>
-    <div class="part leg-right"></div>
+
+  <div id="donate-screen" class="screen">
+    <h1>기부 완료</h1>
+    <p class="thank-you">기부해주셔서 감사합니다!</p>
+    <button class="back-btn">뒤로 가기</button>
   </div>
-</div>
 
-<!-- 🛒 상점 화면 -->
-<div id="shop-screen" class="screen">
-  <h1>🛒 상점</h1>
-  <div style="text-align:center">
-    <button class="shop-btn" onclick="buyItem('gun')">💣 돈총 (50원)</button>
-    <button class="shop-btn" onclick="buyItem('bot')">🤖 돈봇 (150원)</button>
-    <button class="shop-btn" onclick="buyItem('megabot')">🚀 메가돈봇 (400원)</button>
-    <button class="shop-btn" onclick="buyItem('ultrabot')">🌈 킹갓레전더리얼티밋하이드로오메가돈봇 (1000원)</button><br>
-    <button class="back-btn" onclick="switchScreen('main')">← 돌아가기</button>
-    <div id="shop-message" style="margin-top: 15px; color: lightgreen;"></div>
+  <div class="cutscene" id="cutscene">
+    <div class="star"></div>
+    <div class="cutscene-text">희귀 아우라가 나왔습니다!</div>
   </div>
-</div>
 
-<!-- 🌠 컷신 화면 -->
-<div id="cutscene" class="cutscene">
-  <div class="star"></div>
-  <div class="cutscene-text" id="cutsceneText">✨ 전설의 아우라 획득! ✨</div>
-</div>
+  <script>
+    let activeScreen = document.querySelector('.screen.active');
+    let donateBtn = document.querySelector('.donate-btn');
+    let gachaBtn = document.querySelector('.gacha-btn');
+    let shopBtn = document.querySelector('.shop-btn');
+    let backBtns = document.querySelectorAll('.back-btn');
+    let thankYouMsg = document.querySelector('.thank-you');
+    let cutscene = document.getElementById('cutscene');
+    let gachaResult = document.getElementById('gacha-result');
+    let storage = document.getElementById('storage');
+    let equippedInfo = document.getElementById('equipped-info');
+    
+    let auraInventory = [];
+    let equippedAura = null;
 
-<script>
-  let money = 0;
-  let myAuras = [];
-  let equipped = null;
-  let auto = false;
-  let autoInterval;
-  let luckBonus = 0;
-  let items = { gun: false, bot: false, megabot: false, ultrabot: false };
+    // 기부 버튼 클릭
+    donateBtn.addEventListener('click', () => {
+      thankYouMsg.classList.add('show');
+      setTimeout(() => {
+        thankYouMsg.classList.remove('show');
+      }, 3000);
+    });
 
-  const auras = [
-    { name: '흐릿한 아우라', rarity: '일반', chance: 40, color: 'gray' },
-    { name: '반짝이는 아우라', rarity: '일반', chance: 20, color: 'silver' },
-    { name: '불꽃 아우라', rarity: '희귀', chance: 15, color: 'orange', visual: 'aura-flame' },
-    { name: '천둥 아우라', rarity: '에픽', chance: 5, color: 'violet', visual: 'aura-thunder' },
-    { name: '창조신의 아우라', rarity: '신화', chance: 0.5, color: 'white', visual: 'aura-god' }
-  ];
+    // 아우라 뽑기 버튼 클릭
+    gachaBtn.addEventListener('click', () => {
+      showCutscene();
+      setTimeout(() => {
+        let aura = getRandomAura();
+        auraInventory.push(aura);
+        displayAuraResult(aura);
+        updateAuraStorage();
+        hideCutscene();
+      }, 3000);
+    });
 
-  function switchScreen(screen) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(`${screen}-screen`).classList.add('active');
-  }
+    // 뒤로 가기 버튼 클릭
+    backBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        switchScreen('main-screen');
+      });
+    });
 
-  function donate(e) {
-    money += items.gun ? 2 : 1;
-    document.getElementById('money').textContent = money;
-    const btn = document.getElementById('donateBtn');
-    const msg = document.getElementById('thankYouMsg');
-    btn.classList.add('shake');
-    msg.classList.add('show');
-    setTimeout(() => {
-      btn.classList.remove('shake');
-      msg.classList.remove('show');
-    }, 1000);
-    for (let i = 0; i < 10; i++) {
-      const p = document.createElement('div');
-      p.className = 'particle';
-      p.style.left = `${e.clientX}px`;
-      p.style.top = `${e.clientY}px`;
-      p.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
-      p.style.setProperty('--y', `${(Math.random() - 0.5) * 200}px`);
-      document.body.appendChild(p);
-      setTimeout(() => p.remove(), 600);
+    // 화면 전환 함수
+    function switchScreen(screenId) {
+      activeScreen.classList.remove('active');
+      activeScreen = document.getElementById(screenId);
+      activeScreen.classList.add('active');
     }
-  }
 
-  function showCutscene(name) {
-    const cut = document.getElementById('cutscene');
-    const text = document.getElementById('cutsceneText');
-    text.textContent = `✨ ${name} 획득! ✨`;
-    cut.style.display = 'flex';
-    setTimeout(() => { cut.style.display = 'none'; }, 3000);
-  }
+    // 아우라 랜덤 선택 함수
+    function getRandomAura() {
+      const auras = ['Flame Aura', 'Thunder Aura', 'God Aura'];
+      const randomIndex = Math.floor(Math.random() * auras.length);
+      return auras[randomIndex];
+    }
 
-  function drawAura() {
-    const roll = Math.random() * 100;
-    let cumulative = 0;
-    for (const aura of auras) {
-      cumulative += aura.chance + luckBonus;
-      if (roll < cumulative) {
-        if (myAuras.find(a => a.name === aura.name)) {
-          document.getElementById('auraResult').textContent = `${aura.name} (중복)`;
-          return;
-        }
-        myAuras.push(aura);
-        document.getElementById('auraResult').textContent = `🌈 ${aura.name} (${aura.rarity}) 획득!`;
-        if (['에픽', '신화'].includes(aura.rarity)) {
-          showCutscene(aura.name);
-        }
-        updateStorage();
-        return;
+    // 아우라 결과 출력
+    function displayAuraResult(aura) {
+      gachaResult.textContent = `획득한 아우라: ${aura}`;
+    }
+
+    // 아우라 보관함 업데이트
+    function updateAuraStorage() {
+      storage.innerHTML = '<h2>아우라 보관함</h2>';
+      auraInventory.forEach((aura, index) => {
+        const auraElement = document.createElement('span');
+        auraElement.textContent = aura;
+        auraElement.addEventListener('click', () => {
+          equipAura(aura);
+        });
+        storage.appendChild(auraElement);
+      });
+    }
+
+    // 아우라 장착
+    function equipAura(aura) {
+      equippedAura = aura;
+      equippedInfo.textContent = `장착된 아우라: ${aura}`;
+      updateAuraStorage();
+    }
+
+    // 컷신 효과 보이기
+    function showCutscene() {
+      cutscene.style.display = 'flex';
+    }
+
+    // 컷신 효과 숨기기
+    function hideCutscene() {
+      cutscene.style.display = 'none';
+    }
+  </script>
+</body>
+</html>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+    .screen {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    .screen.active {
+      display: block;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    .roblox-character {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .part {
+      width: 40px;
+      height: 40px;
+      margin: 5px;
+      background-color: #000;
+      border-radius: 50%;
+    }
+    .head { background-color: #ffcc00; }
+    .body { background-color: #00ccff; }
+    .arm-left { background-color: #ff9900; }
+    .arm-right { background-color: #ff9900; }
+    .leg-left { background-color: #ff0033; }
+    .leg-right { background-color: #ff0033; }
+    button {
+      background-color: #008CBA;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 12px;
+    }
+    .donate-btn, .gacha-btn, .shop-btn {
+      margin: 10px;
+    }
+    .gacha-result {
+      font-size: 1.5em;
+      margin-top: 20px;
+    }
+    .storage span {
+      display: block;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+    .equipped-info {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+    .cutscene {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .star {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      background-color: white;
+      border-radius: 50%;
+      animation: rotateStars 1.5s infinite linear;
+    }
+    .cutscene-text {
+      position: absolute;
+      color: white;
+      text-align: center;
+      animation: fadeInText 1.5s ease-in-out;
+    }
+
+    @keyframes rotateStars {
+      0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      100% {
+        transform: translate(-50%, -50%) rotate(360deg);
       }
     }
-  }
-
-  function drawAura10() {
-    luckBonus += 0.5;
-    for (let i = 0; i < 10; i++) {
-      setTimeout(() => drawAura(), i * 200);
+    @keyframes fadeInText {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
     }
-    setTimeout(() => { luckBonus = 0; }, 4000);
-  }
-
-  function updateStorage() {
-    const storage = document.getElementById('auraStorage');
-    storage.innerHTML = myAuras.map(a => `<span style='color:${a.color}' onclick='equipAura(\"${a.name}\")'>${a.name}</span>`).join(', ');
-  }
-
-  function equipAura(name) {
-    const aura = myAuras.find(a => a.name === name);
-    if (!aura) return;
-    equipped = name;
-    document.getElementById('equippedAura').textContent = `🧿 착용 중인 아우라: ${aura.name}`;
-    document.getElementById('charAura').className = 'aura-visual ' + (aura.visual || '');
-  }
-
-  function toggleAuto() {
-    auto = !auto;
-    document.getElementById('autoState').textContent = auto ? 'ON' : 'OFF';
-    if (auto) autoInterval = setInterval(drawAura, 1000);
-    else clearInterval(autoInterval);
-  }
-
-  function buyItem(key) {
-    const prices = { gun: 50, bot: 150, megabot: 400, ultrabot: 1000 };
-    if (items[key]) {
-      document.getElementById('shop-message').textContent = '이미 구매함!';
-      return;
-    }
-    if (money < prices[key]) {
-      document.getElementById('shop-message').textContent = '돈이 부족해요!';
-      return;
-    }
-    money -= prices[key];
-    items[key] = true;
-    document.getElementById('money').textContent = money;
-    document.getElementById('shop-message').textContent = key + ' 구매 완료!';
-    if (key === 'bot') setInterval(() => donate({clientX:0,clientY:0}), 3000);
-    if (key === 'megabot') setInterval(() => donate({clientX:0,clientY:0}), 500);
-    if (key === 'ultrabot') setInterval(() => donate({clientX:0,clientY:0}), 50);
-  }
-</script>
-</body>
+  </style>
 </html>
