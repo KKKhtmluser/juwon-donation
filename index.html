@@ -9,7 +9,7 @@
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background: radial-gradient(circle, #1b2735 0%, #090a0f 100%);
-      overflow: hidden;
+      overflow-x: hidden;
       animation: backgroundShift 10s infinite alternate;
       color: white;
     }
@@ -17,6 +17,7 @@
       0% { background-position: 0 0; }
       100% { background-position: 100% 100%; }
     }
+
     .screen { display: none; padding: 40px; }
     .active { display: block; }
 
@@ -64,41 +65,186 @@
       font-size: 1.2rem;
       color: #00ffcc;
     }
+
+    .thank-you {
+      text-align: center;
+      color: #00ffae;
+      font-size: 20px;
+      margin-top: 20px;
+      transition: opacity 0.5s ease;
+      opacity: 0;
+    }
+    .thank-you.show { opacity: 1; }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #ffcc00;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: pop 0.6s ease-out forwards;
+    }
+    @keyframes pop {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0); }
+    }
+
+    .roblox-character {
+      position: relative;
+      width: 140px;
+      height: 280px;
+      margin: 30px auto;
+    }
+    .part {
+      background: #ddd;
+      position: absolute;
+      border: 2px solid #aaa;
+    }
+    .head {
+      width: 50px;
+      height: 50px;
+      top: 0;
+      left: 45px;
+      border-radius: 10px;
+      animation: nod 2s ease-in-out infinite;
+      transform-origin: center;
+    }
+    .body {
+      width: 60px;
+      height: 80px;
+      top: 50px;
+      left: 40px;
+      animation: bounce-body 2s ease-in-out infinite;
+    }
+    .arm-left, .arm-right {
+      width: 20px;
+      height: 70px;
+      top: 50px;
+      animation: walk-arm 2s ease-in-out infinite;
+      transform-origin: top center;
+    }
+    .arm-left { left: 20px; }
+    .arm-right { left: 100px; }
+    .leg-left, .leg-right {
+      width: 25px;
+      height: 80px;
+      top: 130px;
+      animation: walk-leg 2s ease-in-out infinite;
+      transform-origin: top center;
+    }
+    .leg-left { left: 40px; }
+    .leg-right { left: 75px; }
+
+    @keyframes walk-arm {
+      0%, 100% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+    }
+    @keyframes walk-leg {
+      0%, 100% { transform: rotate(-10deg); }
+      50% { transform: rotate(10deg); }
+    }
+    @keyframes bounce-body {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes nod {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(5deg); }
+    }
+
+    .aura-visual {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 140px;
+      height: 280px;
+      z-index: -1;
+      border-radius: 50%;
+    }
+    .aura-flame {
+      background: radial-gradient(circle, rgba(255,69,0,0.5), transparent);
+      animation: pulse 2s infinite;
+    }
+    .aura-thunder {
+      background: radial-gradient(circle, rgba(138,43,226,0.5), transparent);
+      animation: pulse 1.5s infinite;
+    }
+    .aura-god {
+      background: conic-gradient(from 0deg, red, orange, yellow, green, cyan, blue, violet, red);
+      animation: spin 1s linear infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .cutscene {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.9), rgba(0,0,0,1));
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 9999;
+    }
+    .cutscene-star {
+      width: 200px;
+      height: 200px;
+      background: conic-gradient(from 0deg, #fffd87, #fff, #ffd700, #fff, #fffd87);
+      border-radius: 50%;
+      animation: spinStar 2s linear infinite, zoomIn 0.8s ease-out forwards;
+      box-shadow: 0 0 80px 40px rgba(255, 255, 160, 0.4);
+    }
+    .cutscene-text {
+      margin-top: 30px;
+      font-size: 2rem;
+      color: #fffbe0;
+      opacity: 0;
+      animation: fadeText 1s ease 0.6s forwards;
+      text-shadow: 0 0 10px #ffffcc;
+    }
+    @keyframes spinStar {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes zoomIn {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fadeText {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
-  <div class="main-ui screen active" id="main-screen">
-    <div class="main-logo">🌙 주원의 마음</div>
-    <div class="main-subtext">✨ 따뜻한 RNG 기부 게임 ✨</div>
-    <button class="main-btn" onclick="donate(event)">💰 기부하기</button>
-    <button class="main-btn" onclick="switchScreen('gacha')">🎲 아우라 뽑기</button>
-    <button class="main-btn" onclick="switchScreen('shop')">🛒 상점</button>
-    <div class="main-money">누적 기부금: <span id="money">0</span>원</div>
-  </div>
-</body>
-</html>
-<body>
 
-<!-- 💰 메인 화면 -->
-<div id="main-screen" class="screen active">
-  <h1>💰 기부하기</h1>
-  <div style="text-align:center">
-    <div>누적 기부금: <span id="money">0</span>원</div>
-    <button id="donateBtn" class="donate-btn" onclick="donate(event)">기부하기</button>
-    <div class="thank-you" id="thankYouMsg">기부해주셔서 감사합니다!</div>
-    <br>
-    <button class="gacha-btn" onclick="switchScreen('gacha')">🎲 아우라 뽑기</button><br>
-    <button class="shop-btn" onclick="switchScreen('shop')">🛒 상점</button>
-  </div>
+<!-- 🌙 메인 화면 -->
+<div class="main-ui screen active" id="main-screen">
+  <div class="main-logo">🌙 주원의 마음</div>
+  <div class="main-subtext">✨ 따뜻한 RNG 기부 게임 ✨</div>
+
+  <button class="main-btn" onclick="donate(event)">💰 기부하기</button>
+  <button class="main-btn" onclick="switchScreen('gacha')">🎲 아우라 뽑기</button>
+  <button class="main-btn" onclick="switchScreen('shop')">🛒 상점</button>
+
+  <div class="main-money">누적 기부금: <span id="money">0</span>원</div>
 </div>
 
-<!-- 🎲 뽑기 화면 -->
+<!-- 🎲 아우라 뽑기 화면 -->
 <div id="gacha-screen" class="screen">
   <h1>🎲 아우라 뽑기</h1>
   <div style="text-align:center">
-    <button class="gacha-btn" onclick="drawAura()">1회 뽑기</button>
-    <button class="gacha-btn" onclick="drawAura10()">10회 뽑기</button>
-    <button class="gacha-btn" onclick="toggleAuto()">자동 뽑기: <span id="autoState">OFF</span></button><br>
+    <button class="main-btn" onclick="drawAura()">1회 뽑기</button>
+    <button class="main-btn" onclick="drawAura10()">10회 뽑기</button>
+    <button class="main-btn" onclick="toggleAuto()">자동 뽑기: <span id="autoState">OFF</span></button><br>
     <button class="back-btn" onclick="switchScreen('main')">← 돌아가기</button>
   </div>
   <div class="gacha-result" id="auraResult">아직 뽑은 아우라가 없습니다.</div>
@@ -119,16 +265,16 @@
 <div id="shop-screen" class="screen">
   <h1>🛒 상점</h1>
   <div style="text-align:center">
-    <button class="shop-btn" onclick="buyItem('gun')">💣 돈총 (50원)</button>
-    <button class="shop-btn" onclick="buyItem('bot')">🤖 돈봇 (150원)</button>
-    <button class="shop-btn" onclick="buyItem('megabot')">🚀 메가돈봇 (400원)</button>
-    <button class="shop-btn" onclick="buyItem('ultrabot')">🌈 킹갓레전더리얼티밋하이드로오메가돈봇 (1000원)</button><br>
+    <button class="main-btn" onclick="buyItem('gun')">💣 돈총 (50원)</button>
+    <button class="main-btn" onclick="buyItem('bot')">🤖 돈봇 (150원)</button>
+    <button class="main-btn" onclick="buyItem('megabot')">🚀 메가돈봇 (400원)</button>
+    <button class="main-btn" onclick="buyItem('ultrabot')">🌈 킹갓레전더리얼티밋하이드로오메가돈봇 (1000원)</button><br>
     <button class="back-btn" onclick="switchScreen('main')">← 돌아가기</button>
     <div id="shop-message" style="margin-top: 15px; color: lightgreen;"></div>
   </div>
 </div>
 
-<!-- 🌌 컷신 화면 -->
+<!-- 🌌 Sol's RNG 컷신 -->
 <div id="cutscene" class="cutscene">
   <div class="cutscene-star"></div>
   <div class="cutscene-text" id="cutsceneText">✨ 전설의 아우라 획득! ✨</div>
@@ -158,14 +304,16 @@
   function donate(e) {
     money += items.gun ? 2 : 1;
     document.getElementById('money').textContent = money;
-    const btn = document.getElementById('donateBtn');
     const msg = document.getElementById('thankYouMsg');
-    btn.classList.add('shake');
-    msg.classList.add('show');
-    setTimeout(() => {
-      btn.classList.remove('shake');
-      msg.classList.remove('show');
-    }, 1000);
+    const btn = document.getElementById('donateBtn');
+    if (msg) {
+      msg.classList.add('show');
+      setTimeout(() => msg.classList.remove('show'), 1000);
+    }
+    if (btn) {
+      btn.classList.add('shake');
+      setTimeout(() => btn.classList.remove('shake'), 500);
+    }
     for (let i = 0; i < 10; i++) {
       const p = document.createElement('div');
       p.className = 'particle';
@@ -217,7 +365,9 @@
 
   function updateStorage() {
     const storage = document.getElementById('auraStorage');
-    storage.innerHTML = myAuras.map(a => `<span style='color:${a.color}' onclick='equipAura(\"${a.name}\")'>${a.name}</span>`).join(', ');
+    storage.innerHTML = myAuras
+      .map(a => `<span style='color:${a.color}' onclick='equipAura(\"${a.name}\")'>${a.name}</span>`)
+      .join(', ');
   }
 
   function equipAura(name) {
@@ -256,4 +406,3 @@
 </script>
 </body>
 </html>
-
